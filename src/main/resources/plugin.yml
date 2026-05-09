@@ -1,0 +1,4 @@
+name: RealWorldScoreboard
+version: 1.1
+main: pl.scoreboard.RealWorldScoreboard
+api-version: 1.20
