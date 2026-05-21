@@ -5,19 +5,39 @@ import com.google.gson.JsonParser;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.ZoneId;
 
 public class WeatherFetcher {
     // klucz z OpenWeatherMap
     private static final String API_KEY = "8ad0ce062546bd41ce8b8f2e755e2f39";
 
-    public static String getWeatherForIp(String ip) {
-        // Zabezpieczenie dla serwerów lokalnych
+    // Pomocnicza klasa do przechowywania zarówno pogody, jak i strefy czasowej
+    public static class FetchResult {
+        private final String weather;
+        private final ZoneId timezone;
+
+        public FetchResult(String weather, ZoneId timezone) {
+            this.weather = weather;
+            this.timezone = timezone;
+        }
+
+        public String getWeather() {
+            return weather;
+        }
+
+        public ZoneId getTimezone() {
+            return timezone;
+        }
+    }
+
+    public static FetchResult getInfoForIp(String ip) {
+        // Zabezpieczenie dla serwerów lokalnych i sieci LAN
         if (ip.equals("127.0.0.1") || ip.startsWith("192.168.") || ip.startsWith("10.")) {
-            return getLatestWeatherByCity("Warszawa"); // Domyślne miasto w razie gry na localhost
+            return new FetchResult(getLatestWeatherByCity("Warszawa"), ZoneId.of("Europe/Warsaw"));
         }
 
         try {
-            // Pobieramy miasto na podstawie adresu IP
+            // Pobieramy miasto i strefę czasową na podstawie adresu IP
             URL ipUrl = new URL("http://ip-api.com/json/" + ip);
             HttpURLConnection ipConn = (HttpURLConnection) ipUrl.openConnection();
             ipConn.setRequestMethod("GET");
@@ -28,16 +48,23 @@ public class WeatherFetcher {
 
             // Jeśli zapytanie się nie powiodło
             if (!ipJson.get("status").getAsString().equals("success")) {
-                return "Błąd lokalizacji IP";
+                return new FetchResult("Błąd lokalizacji IP", ZoneId.systemDefault());
             }
 
             String city = ipJson.get("city").getAsString();
 
+            // Pobieramy strefę czasową (jeśli API ją zwróci, inaczej bierzemy systemową)
+            String timezoneStr = ipJson.has("timezone") ? ipJson.get("timezone").getAsString()
+                    : ZoneId.systemDefault().getId();
+            ZoneId zoneId = ZoneId.of(timezoneStr);
+
             // Pobieramy pogodę dla odnalezionego miasta
-            return getLatestWeatherByCity(city);
+            String weather = getLatestWeatherByCity(city);
+
+            return new FetchResult(weather, zoneId);
 
         } catch (Exception e) {
-            return "Błąd usług pogody";
+            return new FetchResult("Błąd usług pogody", ZoneId.systemDefault());
         }
     }
 

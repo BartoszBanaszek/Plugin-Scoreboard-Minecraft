@@ -1,4 +1,9 @@
 name: RealWorldScoreboard
-version: 1.1
+version: 1.2
 main: pl.scoreboard.RealWorldScoreboard
 api-version: 1.20
+commands:
+  tablica:
+    description: Włącza lub wyłącza tablicę ze światem realnym na ekranie.
+    usage: /tablica
+    aliases: [sb, scoreboard]
