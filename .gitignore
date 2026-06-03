@@ -1,0 +1,29 @@
+# Skompilowane klasy i pliki Mavena
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Pliki konfiguracyjne IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+
+# Pliki konfiguracyjne Eclipse
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# Pliki konfiguracyjne Visual Studio Code
+.vscode/
+
+# Logi
+*.log
+
+# Systemowe pliki ukryte (np. na Macu)
+.DS_Store

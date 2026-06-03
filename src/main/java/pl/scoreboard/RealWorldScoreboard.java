@@ -133,7 +133,7 @@ public class RealWorldScoreboard extends JavaPlugin implements Listener {
                 player.sendMessage("§cTablica informacyjna została wyłączona.");
             }
 
-            // Asynchronicznie zapisujemy wybór gracza w bazie danych
+            // Asynchronicznie zapisujemy wybór gracza
             Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
                 dbManager.updatePlayerVisibility(uuid, !isHiddenNow);
             });
