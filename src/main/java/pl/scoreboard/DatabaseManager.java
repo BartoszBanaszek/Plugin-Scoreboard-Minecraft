@@ -31,12 +31,18 @@ public class DatabaseManager {
             if (connection != null && !connection.isClosed()) {
                 return;
             }
+
+            Class.forName("org.mariadb.jdbc.Driver");
+
             String url = "jdbc:mariadb://" + host + ":" + port + "/" + database;
             connection = DriverManager.getConnection(url, username, password);
             createTables();
             Bukkit.getLogger().info("[RealWorldScoreboard] Pomyslnie polaczono z baza MariaDB!");
         } catch (SQLException e) {
             Bukkit.getLogger().severe("[RealWorldScoreboard] Blad laczenia z MariaDB! Sprawdz dane w config.yml.");
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            Bukkit.getLogger().severe("[RealWorldScoreboard] Nie znaleziono drivera MariaDB!");
             e.printStackTrace();
         }
     }
