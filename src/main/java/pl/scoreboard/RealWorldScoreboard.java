@@ -31,10 +31,8 @@ public class RealWorldScoreboard extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
-        // Generowanie domyślnego pliku config.yml
         saveDefaultConfig();
 
-        // Inicjalizacja połączenia z bazą danych na podstawie config.yml
         dbManager = new DatabaseManager(
                 getConfig().getString("database.host"),
                 getConfig().getInt("database.port"),
@@ -47,21 +45,23 @@ public class RealWorldScoreboard extends JavaPlugin implements Listener {
 
         // Asynchroniczne pobieranie danych i zapis do DB
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
+
+            // CZYSZCZENIE CACHE: Zmuszamy WeatherFetcher do zaktualizowania temperatur co
+            // 10 minut
+            WeatherFetcher.clearWeatherCache();
+
             String rawNews = OnetRssParser.getLatestNews();
             cachedNews = rawNews + " *** ";
 
-            // Zapisujemy zdobytego newsa do historii bazy danych
             if (!rawNews.startsWith("Błąd") && !rawNews.startsWith("Brak")) {
                 dbManager.logNews(rawNews);
             }
 
-            // Odświeżamy dane graczy online i aktualizujemy bazę
             for (Player player : Bukkit.getOnlinePlayers()) {
                 String ip = player.getAddress().getAddress().getHostAddress();
                 WeatherFetcher.FetchResult info = WeatherFetcher.getInfoForIp(ip);
                 playerInfos.put(player.getUniqueId(), info);
 
-                // Aktualizujemy dane gracza w bazie (IP i Najnowszą pogodę)
                 dbManager.savePlayerData(player.getUniqueId(), player.getName(), ip, info.getWeather());
             }
         }, 0L, 12000L); // Co 10 minut
@@ -133,7 +133,6 @@ public class RealWorldScoreboard extends JavaPlugin implements Listener {
                 player.sendMessage("§cTablica informacyjna została wyłączona.");
             }
 
-            // Asynchronicznie zapisujemy wybór gracza
             Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
                 dbManager.updatePlayerVisibility(uuid, !isHiddenNow);
             });
@@ -151,14 +150,9 @@ public class RealWorldScoreboard extends JavaPlugin implements Listener {
         playerInfos.put(uuid, new WeatherFetcher.FetchResult("Sprawdzam chmury...", ZoneId.systemDefault()));
 
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-
-            // Czy gracz wyłączył sobie tablicę na poprzedniej sesji
             boolean isHidden = dbManager.isScoreboardHidden(uuid);
-
-            // Pobieramy pogodę po IP
             WeatherFetcher.FetchResult info = WeatherFetcher.getInfoForIp(ip);
 
-            // Dodajemy gracza do bazy lub uaktualniamy jego dane
             dbManager.savePlayerData(uuid, player.getName(), ip, info.getWeather());
 
             Bukkit.getScheduler().runTask(this, () -> {
@@ -179,6 +173,6 @@ public class RealWorldScoreboard extends JavaPlugin implements Listener {
         UUID uuid = event.getPlayer().getUniqueId();
         playerBoards.remove(uuid);
         playerInfos.remove(uuid);
-        hiddenScoreboards.remove(uuid); // Czyścimy RAM
+        hiddenScoreboards.remove(uuid);
     }
 }
