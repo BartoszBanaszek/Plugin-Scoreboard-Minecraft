@@ -1,6 +1,0 @@
-database:
-  host: "127.0.0.1"
-  port: 3306
-  database: "minecraft_scoreboard"
-  username: "minecraft"
-  password: "123456789"

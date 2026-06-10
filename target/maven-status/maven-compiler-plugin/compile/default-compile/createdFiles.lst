@@ -1,7 +1,0 @@
-pl\scoreboard\OnetRssParser.class
-pl\scoreboard\DatabaseManager.class
-pl\scoreboard\WeatherFetcher$FetchResult.class
-pl\scoreboard\CustomScoreboard.class
-pl\scoreboard\RealWorldScoreboard.class
-pl\scoreboard\WeatherFetcher.class
-pl\scoreboard\WeatherFetcher$LocationInfo.class
