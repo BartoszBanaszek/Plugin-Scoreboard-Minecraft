@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class WeatherFetcher {
     // Klucz z OpenWeatherMap
-    private static final String API_KEY = "8ad0ce062546bd41ce8b8f2e755e2f39";
+    private static final String API_KEY = "";
 
     // 1. CACHE IP -> Miasto i Strefa Czasowa (Ochrona API geolokalizacji)
     private static final Map<String, LocationInfo> ipLocationCache = new ConcurrentHashMap<>();
